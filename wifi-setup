@@ -1,0 +1,79 @@
+#!/bin/bash
+### BEGIN INIT INFO
+# Provides:          wifi-setup
+# Required-Start:    $all
+# Required-Stop:
+# Default-Start:     2 3 4 5
+# Default-Stop:
+# Short-Description: Connect to known wifi networks or create instant hotspot if no known wifi in range
+### END INIT INFO
+
+
+PATH=/sbin:/usr/sbin:/bin:/usr/bin
+
+. /lib/init/vars.sh
+. /lib/lsb/init-functions
+
+do_start() {
+    wifimac=$(ip addr show wlan0 | grep ether | awk {'print $2'})
+    
+    instantHotspot(){
+        logger -t wifi-setup -s "creating ad-hoc wifi ssid: rPi-console-$wifimac"
+        ifconfig wlan0 down
+        iwconfig wlan0 mode ad-hoc
+        iwconfig wlan0 essid rPi-console-$wifimac
+        ifconfig wlan0 192.168.168.1 netmask 255.255.255.0 up
+        /usr/sbin/dhcpd wlan0
+    }
+ 
+    logger -t wifi-setup -s "scanning for known wifi networks"
+    IFS_BAK=${IFS}
+    IFS="
+    "
+    ssids=($(grep --null -Po 'ssid="\K[^"]*(?=")' /etc/wpa_supplicant/wpa_supplicant.conf))
+    IFS=${IFS_BAK}
+    connected=false
+    for ssid in "${ssids[@]}"
+    do
+        logger -t wifi-setup -s "scanning for $ssid"
+        if iwlist wlan0 scan | grep "$ssid" > /dev/null
+        then
+            logger -t wifi-setup -s "SSID broadcast $ssid received. associating..."
+            wpa_supplicant -Dwext -B -i wlan0 -c /etc/wpa_supplicant/wpa_supplicant.conf > /dev/null 2>&1
+            if dhclient -1 wlan0
+            then
+                logger -t wifi-setup -s "successfully connected to $ssid"
+                connected=true
+                break
+            else
+                logger -t wifi-setup -s "no DHCPOFFER received"
+                wpa_cli terminate
+                break
+            fi
+        else
+            logger -t wifi-setup -s "known wifi $ssid not in range"
+        fi
+    done
+     
+    if ! $connected; then
+        instantHotspot
+    fi
+}
+
+case "$1" in
+    start)
+        do_start
+        ;;
+    restart|reload|force-reload)
+        echo "Error: argument '$1' not supported" >&2
+        exit 3
+        ;;
+    stop|status)
+        # No-op
+        exit 0
+        ;;
+    *)
+        echo "Usage: $0 start|stop" >&2
+        exit 3
+        ;;
+esac
