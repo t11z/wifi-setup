@@ -18,7 +18,7 @@ do_start() {
     wifimac=$(ip addr show wlan0 | grep ether | awk {'print $2'})
     
     instantHotspot(){
-        logger -t wifi-setup -s "creating ad-hoc wifi ssid: rPi-console-$wifimac"
+        logger -t wifi-setup -s "creating ad-hoc wifi ssid: mywifi-$wifimac"
         ifconfig wlan0 down
         iwconfig wlan0 mode ad-hoc
         iwconfig wlan0 essid mywifi-$wifimac
