@@ -18,7 +18,6 @@ Clone repository to /etc/init.d, then do
     # cat <<EOT >>/etc/dhcp/dhcpd.conf
         option subnet-mask 255.255.255.0;
         option broadcast-address 192.168.168.255;
-        option domain-name "conf";
         option routers 192.168.168.1;
         subnet 192.168.168.0 netmask 255.255.255.0 {
             range 192.168.168.100 192.168.168.199;
