@@ -15,11 +15,11 @@ Clone repository to /etc/init.d, then do
     # apt-get install isc-dhcp-server wpasupplicant
     # cat <<EOT >>/etc/dhcp/dhcpd.conf
         option subnet-mask 255.255.255.0;
-        option broadcast-address 10.0.0.255;
+        option broadcast-address 192.168.168.255;
         option domain-name "conf";
-        option routers 192.168.16.1;
-        subnet 10.0.0.0 netmask 255.255.255.0 {
-            range 10.0.0.2 10.0.0.20; #IP range to offer
+        option routers 192.168.168.1;
+        subnet 192.168.168.0 netmask 255.255.255.0 {
+            range 192.168.168.100 192.168.168.199;
         }
     EOT
 
