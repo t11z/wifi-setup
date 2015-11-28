@@ -1,14 +1,14 @@
 # wifi-setup
 Simple boot script to associate with known wifi-networks or create instant hotspot, if none is in range.
 
-Requirements
+## Requirements
 ====================
 
 - wpa_supplicant
 - ISC DHCP server
 - bash
 
-Installation and configuration
+## Installation and configuration
 ====================
 Clone repository to /etc/init.d, then do
 
