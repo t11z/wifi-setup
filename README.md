@@ -12,6 +12,8 @@ Installation and configuration
 ====================
 Clone repository to /etc/init.d, then do
 
+    # chmod +x /etc/init.d/wifi-setup
+    # update-rc.d wifi-setup defaults
     # apt-get install isc-dhcp-server wpasupplicant
     # cat <<EOT >>/etc/dhcp/dhcpd.conf
         option subnet-mask 255.255.255.0;
